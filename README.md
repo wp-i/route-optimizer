@@ -1,89 +1,187 @@
-# Route Optimizer - 智能路线规划工具
+# 🗺️ Route Optimizer
 
-多途经点驾车路线优化工具，支持明确途经点和模糊途经点（如"超市"、"加油站"），输出近似最短耗时路线。
+> 多途经点智能路线规划 | 支持往返路线 | 模糊地点搜索
 
-## 产品形态
+<p align="center">
+  <img src="https://img.shields.io/badge/开发时间-2小时-blue?logo=openclaw" alt="OpenClaw 2h">
+</p>
 
-| 版本 | 目标用户 | 状态 |
-|------|---------|------|
-| **Skill 版** | OpenClaw 用户 | ✅ 已完成 |
-| **MCP Server 版** | Cursor、Claude Desktop 等 | 🚧 待开发 |
+---
 
-## 功能特性
+## ⚡ 10秒快速了解
 
-- ✅ 多途经点路线优化（TSP 求解，<10 点）
-- ✅ 明确途经点支持（地址/POI 名称）
-- ✅ 模糊途经点支持（如"超市"、"加油站"）
-- ✅ 贪心算法快速生成可用方案
-- ✅ 高德地图 API 支持
-- ✅ 交互式 API Key 配置
+### 核心卖点
 
-## 快速开始
+| 功能 | 说明 |
+|------|------|
+| 🔄 **往返路线** | 从家出发→多点→回家，自动优化顺序 |
+| 🔍 **模糊搜索** | 输入"超市"、"加油站"，自动匹配最近门店 |
+| 🛣️ **TSP优化** | 多途经点自动计算最短路径 |
+| ⚡ **极速开发** | 使用 OpenClaw 2小时完成 |
 
-### 安装依赖
+### OpenClaw 一句话调用
 
-```bash
-cd D:/code/route-optimizer
-pip install -r requirements.txt
+```
+帮我规划从北京西站到首都机场，途经肯德基和星巴克
 ```
 
-### 配置 API Key
+---
 
-```bash
-python skill/scripts/run.py '{"action": "config", "api_key": "你的高德API_KEY"}'
+## 🚀 快速开始
+
+### OpenClaw 用户（推荐）
+
+**安装**：
+```
+clawhub install route-optimizer
 ```
 
-### 查看配置状态
+**使用**：直接对话即可
 
-```bash
-python skill/scripts/run.py '{"action": "status"}'
+```
+用户：帮我规划从北京西站到首都机场，途经肯德基和星巴克
 ```
 
-### 规划路线
+**输出**：
 
-```bash
-# 基础路线
-python skill/scripts/run.py '{"action": "optimize", "origin": "北京西站", "destination": "首都机场"}'
+```
+路线规划结果
+============================================================
+起点：北京西站（北京市丰台区莲花池东路118号）
+终点：首都机场（北京市顺义区首都国际机场）
 
-# 多途经点
-python skill/scripts/run.py '{"action": "optimize", "origin": "北京西站", "destination": "首都机场", "waypoints": [{"type": "explicit", "name": "天安门"}, {"type": "explicit", "name": "鸟巢"}]}'
+途经点：
+  1. 肯德基（北京西站店）
+  2. 星巴克（T3航站楼店）
 
-# 包含模糊途经点
-python skill/scripts/run.py '{"action": "optimize", "origin": "北京西站", "destination": "首都机场", "waypoints": [{"type": "fuzzy", "keyword": "超市"}]}'
+============================================================
+路线分段
+============================================================
+
+1. 北京西站 → 肯德基
+   起点 → 终点：北京市丰台区莲花池东路118号 → 北京西站北广场
+   耗时：8分钟
+
+2. 肯德基 → 星巴克
+   起点 → 终点：北京西站北广场 → 首都机场T3航站楼
+   耗时：35分钟
+
+3. 星巴克 → 首都机场
+   起点 → 终点：首都机场T3航站楼 → 北京市顺义区首都国际机场
+   耗时：5分钟
+
+============================================================
+总耗时：48分钟 | 总距离：32.5公里
+============================================================
 ```
 
-## 项目结构
+### Python 用户
+
+```bash
+pip install httpx
+```
+
+```python
+from core import optimize_route, configure_api_key
+
+# 配置API Key（首次使用）
+configure_api_key("你的高德API_Key")
+
+# 调用
+result = optimize_route(
+    origin="北京西站",
+    destination="首都机场",
+    waypoints=["肯德基", "星巴克"]
+)
+```
+
+---
+
+## 📖 使用场景
+
+### 场景1：往返路线（从家出发→多点→回家）
+
+```
+用户：从北京出发，去肯德基、星巴克、优衣库，然后回家
+```
+
+系统自动：
+- 识别起点=终点（循环路线）
+- 在目的地附近搜索途经点
+- 优化访问顺序
+
+### 场景2：模糊途经点
+
+```
+用户：从南京站到新街口，路上找个超市
+```
+
+系统自动：
+- 在目的地附近搜索超市
+- 选择最近的插入路线
+
+### 场景3：多途经点优化
+
+```
+用户：从上海站到外滩，途经肯德基、星巴克、优衣库、麦当劳
+```
+
+系统自动：
+- TSP算法计算最优访问顺序
+- 避免绕路
+
+---
+
+## 📦 安装方式
+
+| 方式 | 适用 | 命令 |
+|------|------|------|
+| OpenClaw Skill | 对话式使用 | `clawhub install route-optimizer` |
+| MCP Server | Cursor/Claude | `pip install route-optimizer` |
+| Python SDK | 开发集成 | `pip install httpx` + 下载源码 |
+
+---
+
+## 🔑 API Key 获取
+
+1. 访问 [高德开放平台](https://console.amap.com)
+2. 注册 → 创建应用 → 添加 Key（选择"Web服务"）
+3. 复制 Key
+
+> 个人免费额度：每日5000次调用，足够日常使用
+
+---
+
+## 📊 对比高德官方API
+
+| 功能 | 高德官方 | Route Optimizer |
+|------|---------|-----------------|
+| 路线规划 | ✅ | ✅ |
+| 多途经点 | ✅ 固定顺序 | ✅ **自动优化顺序** |
+| 模糊搜索 | ❌ | ✅ **关键词自动匹配** |
+| 往返路线 | ❌ | ✅ **起点=终点智能处理** |
+| 开箱即用 | ❌ 需开发 | ✅ Skill/MCP/SDK |
+
+---
+
+## 📁 项目结构
 
 ```
 route-optimizer/
-├── core/                  # 核心逻辑
-│   ├── optimizer.py       # TSP 优化算法
-│   └── router.py          # 路线规划主流程
-├── api/                   # API 适配层
-│   ├── amap.py            # 高德地图 API 封装
-│   └── exceptions.py      # 自定义异常
-├── config/                # 配置管理
-│   └── manager.py         # API Key 配置
-├── skill/                 # Skill 版本
-│   ├── SKILL.md           # Skill 定义
-│   └── scripts/run.py     # 入口脚本
-├── docs/                  # 文档
-│   ├── PRD.md             # 产品需求文档
-│   ├── TDD.md             # 技术设计文档
-│   ├── DEV_GUIDE.md       # 开发指南
-│   └── API.md             # API 文档
-├── README.md
-└── requirements.txt
+├── core/           # 核心算法
+├── api/            # 高德API封装
+├── skill/          # OpenClaw Skill
+└── docs/           # 技术文档
 ```
 
-## API Key 获取
+---
 
-1. 访问 https://console.amap.com 注册账号
-2. 创建应用，选择「Web 服务」
-3. 获取 Key 并配置
+## 📄 License
 
-**免费额度**：个人开发者每日 5000 次调用，足够日常使用。
+MIT License - 自由使用
 
-## 许可证
+---
 
-MIT
+## 🤝 贡献
+
+欢迎 Issue 和 PR！

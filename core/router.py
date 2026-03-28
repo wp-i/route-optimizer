@@ -118,15 +118,31 @@ def optimize_route(
     origin_coord = (origin_geo["lng"], origin_geo["lat"])
     dest_coord = (dest_geo["lng"], dest_geo["lat"])
     
-    # 判断起点和终点是否相同
-    same_origin_dest = (origin_coord == dest_coord)
+    # 判断起点和终点是否相同（循环路线场景）
+    same_origin_dest = (origin == destination) or (origin_coord == dest_coord)
+    
+    # 提取起点所在城市（用于循环路线的POI搜索）
+    origin_city = ""
+    if same_origin_dest and origin_geo.get("formatted_address"):
+        # 从地址中提取城市名，如"黑龙江省哈尔滨市五常市" -> "哈尔滨"
+        addr = origin_geo["formatted_address"]
+        # 匹配"XX市"中的城市名
+        import re
+        city_match = re.search(r'(?:省|^)([^省]+?市)', addr)
+        if city_match:
+            origin_city = city_match.group(1)  # 如"哈尔滨市"
+            # 去掉"市"字
+            if origin_city.endswith('市'):
+                origin_city = origin_city[:-1]
     
     # 计算搜索中心（优先终点，其次起点）
     if same_origin_dest:
+        # 循环路线：起点=终点，途经点可能在更远的地方
+        # 扩大搜索范围，支持"从家出发去市区再回家"的场景
         search_centers = [origin_coord]
-        radii = [50000, 100000, 200000, 300000]
+        radii = [50000, 100000, 200000, 500000]  # 最大500km，覆盖城市到周边
     else:
-        # 优先在终点附近搜索，然后是起点，最后是中点
+        # 普通路线：优先在终点附近搜索
         search_centers = [
             dest_coord,      # 终点附近（最高优先级）
             origin_coord,   # 起点附近
@@ -158,7 +174,22 @@ def optimize_route(
             if found:
                 break
         
-        # 方法2: 如果POI搜索没找到，尝试地理编码
+        # 方法2: 循环路线特殊处理 - 用城市名作为前缀搜索
+        if not found and same_origin_dest and origin_city:
+            try:
+                # 加城市前缀，如"哈尔滨麦德龙"
+                geo = amap.geocode(f"{origin_city}{name}")
+                explicit_geos.append({
+                    "name": name,
+                    "lng": geo["lng"],
+                    "lat": geo["lat"],
+                    "address": geo["formatted_address"]
+                })
+                found = True
+            except GeocodeError:
+                pass
+        
+        # 方法3: 如果POI搜索没找到，尝试地理编码
         if not found:
             try:
                 geo = amap.geocode(name)
@@ -283,14 +314,13 @@ def optimize_route(
         
         for i in range(len(ordered_coords) - 1):
             duration = final_dist_matrix[i][i+1]
-            # 需要重新获取距离（时间矩阵只有时间）
-            # 简化：用路线规划 API 获取详细信息
-            
             total_duration += duration
             
             segments.append({
                 "from": ordered_names[i],
+                "from_address": ordered_addresses[i],
                 "to": ordered_names[i+1],
+                "to_address": ordered_addresses[i+1],
                 "duration": duration,
                 "duration_text": format_duration(duration)
             })
