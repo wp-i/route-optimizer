@@ -1,0 +1,122 @@
+[
+  {
+    "id": "COMPLEX-01",
+    "user_input": "我5月3号到5月5号去淮安玩，入住如家商旅酒店（淮安周恩来纪念馆河下古镇店），想吃小龙虾，还想去周恩来纪念馆逛逛",
+    "origin": "淮安周恩来纪念馆",
+    "destination": "淮安周恩来纪念馆",
+    "waypoints": "小龙虾",
+    "actual": "success=True, 3点, 4.9km, 21 分钟, 7推荐",
+    "status": "PASS",
+    "elapsed_s": 3.0,
+    "distance_km": 4.9,
+    "rec_count": 7
+  },
+  {
+    "id": "COMPLEX-02",
+    "user_input": "周末两天北京游，第一天早上看天安门升旗，然后去故宫，中午想吃北京烤鸭，下午去天坛",
+    "origin": "天安门",
+    "destination": "天安门",
+    "waypoints": "故宫, 烤鸭, 天坛",
+    "actual": "success=True, 5点, 23.1km, 1 小时 40 分钟, 13推荐",
+    "status": "PASS",
+    "elapsed_s": 9.2,
+    "distance_km": 23.1,
+    "rec_count": 13
+  },
+  {
+    "id": "COMPLEX-03",
+    "user_input": "陪爸妈去苏州玩，他们说必须去拙政园和寒山寺，我自己想吃顿好的，求推荐正宗的苏帮菜，环境要好点",
+    "origin": "拙政园",
+    "destination": "寒山寺",
+    "waypoints": "苏帮菜",
+    "actual": "success=True, 3点, 12.4km, 43 分钟, 9推荐",
+    "status": "PASS",
+    "elapsed_s": 3.0,
+    "distance_km": 12.4,
+    "rec_count": 9
+  },
+  {
+    "id": "COMPLEX-04",
+    "user_input": "五一去成都三天，想看大熊猫基地、武侯祠，还要吃火锅，最好是那种本地人常去的正宗火锅，不要网红店",
+    "origin": "大熊猫繁育研究基地",
+    "destination": "武侯祠",
+    "waypoints": "火锅",
+    "actual": "success=True, 3点, 19.3km, 55 分钟, 9推荐",
+    "status": "PASS",
+    "elapsed_s": 3.2,
+    "distance_km": 19.3,
+    "rec_count": 9
+  },
+  {
+    "id": "COMPLEX-05",
+    "user_input": "下午四点半从公司（国贸）出发，去首都机场接个人，然后去万达吃个晚饭，最后回家",
+    "origin": "国贸",
+    "destination": "万达",
+    "waypoints": "首都机场",
+    "actual": "success=True, 3点, 54.6km, 1 小时 8 分钟, 8推荐",
+    "status": "PASS",
+    "elapsed_s": 4.5,
+    "distance_km": 54.6,
+    "rec_count": 8
+  },
+  {
+    "id": "COMPLEX-06",
+    "user_input": "早上八点从家出发，去奥森跑步，跑完回家洗个澡，然后去公司开会",
+    "origin": "奥林匹克公园",
+    "destination": "国贸",
+    "waypoints": "",
+    "actual": "success=True, 2点, 17.5km, 39 分钟, 6推荐",
+    "status": "PASS",
+    "elapsed_s": 2.1,
+    "distance_km": 17.5,
+    "rec_count": 6
+  },
+  {
+    "id": "COMPLEX-07",
+    "user_input": "去西安玩三天，主要去兵马俑、华清池，还有回民街吃小吃，晚上想看长恨歌演出",
+    "origin": "秦始皇兵马俑博物馆",
+    "destination": "钟楼",
+    "waypoints": "华清池, 回民街, 长恨歌",
+    "actual": "success=True, 5点, 83.5km, 2 小时 42 分钟, 13推荐",
+    "status": "PASS",
+    "elapsed_s": 7.0,
+    "distance_km": 83.5,
+    "rec_count": 13
+  },
+  {
+    "id": "COMPLEX-08",
+    "user_input": "下午到广州白云机场，晚上想去珠江夜游，第二天去长隆野生动物世界玩一整天",
+    "origin": "广州白云国际机场",
+    "destination": "长隆野生动物世界",
+    "waypoints": "珠江夜游",
+    "actual": "success=True, 3点, 57.4km, 1 小时 21 分钟, 6推荐",
+    "status": "PASS",
+    "elapsed_s": 3.0,
+    "distance_km": 57.4,
+    "rec_count": 6
+  },
+  {
+    "id": "COMPLEX-09",
+    "user_input": "我从南京开车去杭州，路上想在服务区休息一下，到了之后去西湖边上的知味观吃午饭，然后去灵隐寺",
+    "origin": "西湖",
+    "destination": "灵隐寺",
+    "waypoints": "知味观",
+    "actual": "success=True, 3点, 9.3km, 28 分钟, 9推荐",
+    "status": "PASS",
+    "elapsed_s": 2.9,
+    "distance_km": 9.3,
+    "rec_count": 9
+  },
+  {
+    "id": "COMPLEX-10",
+    "user_input": "三天两夜上海游，想去外滩、田子坊，还要看东方明珠，晚上去酒吧街逛逛，再找个正宗本帮菜吃吃",
+    "origin": "外滩",
+    "destination": "外滩",
+    "waypoints": "东方明珠, 田子坊, 酒吧街, 本帮菜",
+    "actual": "success=True, 6点, 21.8km, 1 小时 34 分钟, 17推荐",
+    "status": "PASS",
+    "elapsed_s": 12.0,
+    "distance_km": 21.8,
+    "rec_count": 17
+  }
+]
