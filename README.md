@@ -1,187 +1,110 @@
 # 🗺️ Route Optimizer
 
-> 多途经点智能路线规划 | 支持往返路线 | 模糊地点搜索
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-green.svg)](https://www.python.org)
 
-<p align="center">
-  <img src="https://img.shields.io/badge/开发时间-2小时-blue?logo=openclaw" alt="OpenClaw 2h">
-</p>
+智能路线规划工具。基于高德地图 API，支持多途经点 TSP 自动优化——无论是明确的目的地还是模糊的搜索词（"找个超市"），都能自动算出最优路线顺序。
 
 ---
 
-## ⚡ 10秒快速了解
+## 核心特性
 
-### 核心卖点
-
-| 功能 | 说明 |
+| 特性 | 说明 |
 |------|------|
-| 🔄 **往返路线** | 从家出发→多点→回家，自动优化顺序 |
-| 🔍 **模糊搜索** | 输入"超市"、"加油站"，自动匹配最近门店 |
-| 🛣️ **TSP优化** | 多途经点自动计算最短路径 |
-| ⚡ **极速开发** | 使用 OpenClaw 2小时完成 |
-
-### OpenClaw 一句话调用
-
-```
-帮我规划从北京西站到首都机场，途经肯德基和星巴克
-```
+| **TSP 自动优化** | 多途经点自动枚举排列，选耗时最短顺序 |
+| **模糊途经点** | "找个超市" → 自动在路线附近匹配最合适的门店 |
+| **城市上下文** | 知名地点（如"故宫"）自动限定城市，避免匹配到同名异地 |
+| **往返路线** | 起点=终点，自动识别并规划环形路线 |
+| **多端可用** | Python SDK / OpenClaw Skill / MCP Server |
 
 ---
 
-## 🚀 快速开始
-
-### OpenClaw 用户（推荐）
-
-**安装**：
-```
-clawhub install route-optimizer
-```
-
-**使用**：直接对话即可
-
-```
-用户：帮我规划从北京西站到首都机场，途经肯德基和星巴克
-```
-
-**输出**：
-
-```
-路线规划结果
-============================================================
-起点：北京西站（北京市丰台区莲花池东路118号）
-终点：首都机场（北京市顺义区首都国际机场）
-
-途经点：
-  1. 肯德基（北京西站店）
-  2. 星巴克（T3航站楼店）
-
-============================================================
-路线分段
-============================================================
-
-1. 北京西站 → 肯德基
-   起点 → 终点：北京市丰台区莲花池东路118号 → 北京西站北广场
-   耗时：8分钟
-
-2. 肯德基 → 星巴克
-   起点 → 终点：北京西站北广场 → 首都机场T3航站楼
-   耗时：35分钟
-
-3. 星巴克 → 首都机场
-   起点 → 终点：首都机场T3航站楼 → 北京市顺义区首都国际机场
-   耗时：5分钟
-
-============================================================
-总耗时：48分钟 | 总距离：32.5公里
-============================================================
-```
-
-### Python 用户
+## 快速开始
 
 ```bash
+# 安装依赖
 pip install httpx
+
+# Python 调用
+python examples/basic.py
 ```
+
+## 快速调用示例
 
 ```python
-from core import optimize_route, configure_api_key
+from core import optimize_route
 
-# 配置API Key（首次使用）
-configure_api_key("你的高德API_Key")
-
-# 调用
 result = optimize_route(
-    origin="北京西站",
-    destination="首都机场",
-    waypoints=["肯德基", "星巴克"]
+    origin='天安门',
+    destination='天坛',
+    waypoints=[
+        {'type': 'explicit', 'name': '故宫'},
+        {'type': 'fuzzy', 'keyword': '超市'},
+    ]
 )
+
+if result['success']:
+    for p in result['route']:
+        print(p['name'], p['address'][:20])
+    print('总耗时:', result['total_duration_text'])
 ```
 
 ---
 
-## 📖 使用场景
+## 算法说明
 
-### 场景1：往返路线（从家出发→多点→回家）
-
-```
-用户：从北京出发，去肯德基、星巴克、优衣库，然后回家
-```
-
-系统自动：
-- 识别起点=终点（循环路线）
-- 在目的地附近搜索途经点
-- 优化访问顺序
-
-### 场景2：模糊途经点
-
-```
-用户：从南京站到新街口，路上找个超市
-```
-
-系统自动：
-- 在目的地附近搜索超市
-- 选择最近的插入路线
-
-### 场景3：多途经点优化
-
-```
-用户：从上海站到外滩，途经肯德基、星巴克、优衣库、麦当劳
-```
-
-系统自动：
-- TSP算法计算最优访问顺序
-- 避免绕路
+- **明确途经点**：TSP 暴力枚举（≤8 个途经点 → ≤40320 种排列，毫秒级）
+- **模糊途经点**：路线几何中点 → POI 搜索 → 贪心最小绕行位置插入
+- **地理编码**：带城市上下文的高德地理编码 API，提高知名地点准确率
 
 ---
 
-## 📦 安装方式
-
-| 方式 | 适用 | 命令 |
-|------|------|------|
-| OpenClaw Skill | 对话式使用 | `clawhub install route-optimizer` |
-| MCP Server | Cursor/Claude | `pip install route-optimizer` |
-| Python SDK | 开发集成 | `pip install httpx` + 下载源码 |
-
----
-
-## 🔑 API Key 获取
-
-1. 访问 [高德开放平台](https://console.amap.com)
-2. 注册 → 创建应用 → 添加 Key（选择"Web服务"）
-3. 复制 Key
-
-> 个人免费额度：每日5000次调用，足够日常使用
-
----
-
-## 📊 对比高德官方API
-
-| 功能 | 高德官方 | Route Optimizer |
-|------|---------|-----------------|
-| 路线规划 | ✅ | ✅ |
-| 多途经点 | ✅ 固定顺序 | ✅ **自动优化顺序** |
-| 模糊搜索 | ❌ | ✅ **关键词自动匹配** |
-| 往返路线 | ❌ | ✅ **起点=终点智能处理** |
-| 开箱即用 | ❌ 需开发 | ✅ Skill/MCP/SDK |
-
----
-
-## 📁 项目结构
+## 项目结构
 
 ```
 route-optimizer/
-├── core/           # 核心算法
-├── api/            # 高德API封装
-├── skill/          # OpenClaw Skill
-└── docs/           # 技术文档
+├── core/               # 核心算法
+│   ├── optimizer.py    # TSP 暴力枚举 + 几何中点
+│   └── router.py       # 路线规划主流程
+├── api/               # 高德 API 封装
+│   └── amap.py
+├── config/            # API Key 配置
+│   └── manager.py
+├── skill/             # OpenClaw Skill
+│   ├── SKILL.md
+│   └── scripts/run.py
+├── examples/          # 示例代码
+│   ├── basic.py       # 基础路线规划
+│   ├── fuzzy.py        # 模糊途经点
+│   └── roundtrip.py    # 往返路线
+├── tests/             # 单元测试（pytest）
+│   ├── test_optimizer.py
+│   └── test_config.py
+└── docs/              # 需求文档
+    ├── PRD.md
+    └── DEV_GUIDE.md
 ```
 
 ---
 
-## 📄 License
+## 运行测试
 
-MIT License - 自由使用
+```bash
+pytest tests/ -v
+```
 
 ---
 
-## 🤝 贡献
+## 申请高德 API Key
 
-欢迎 Issue 和 PR！
+1. 打开 [https://console.amap.com](https://console.amap.com)
+2. 注册 → 登录 → 完成实名认证
+3. 「应用管理」→「我的应用」→「创建新应用」
+4. 添加 Key，**服务平台选「Web服务」**
+5. 每日免费额度：5000 次调用
+
+---
+
+## License
+
+MIT

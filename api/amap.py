@@ -153,7 +153,67 @@ class AMapAPI:
             })
         
         return formatted_pois
-    
+
+    def search_text(
+        self, 
+        keyword: str, 
+        city: str = "",
+        limit: int = 5
+    ) -> List[Dict]:
+        """
+        关键词搜索 POI（不限区域，全国搜索）
+        
+        Args:
+            keyword: 搜索关键词
+            city: 城市名称（可选，限定搜索范围）
+            limit: 返回数量限制
+        
+        Returns:
+            [
+                {
+                    "id": str,
+                    "name": str,
+                    "address": str,
+                    "lng": float,
+                    "lat": float,
+                    "type": str
+                },
+                ...
+            ]
+        """
+        url = f"{self.BASE_URL}/v3/place/text"
+        params = {
+            "keywords": keyword,
+            "offset": limit,
+            "output": "JSON"
+        }
+        if city:
+            params["city"] = city
+        
+        result = self._request(url, params)
+        
+        if result["status"] != "1":
+            raise POISearchError(f"POI搜索失败: {result.get('info', '未知错误')}")
+        
+        pois = result["data"].get("pois", [])
+        
+        formatted_pois = []
+        for poi in pois:
+            loc = poi.get("location", "").split(",")
+            if len(loc) != 2:
+                continue
+            
+            formatted_pois.append({
+                "id": poi.get("id", ""),
+                "name": poi.get("name", ""),
+                "address": poi.get("address", ""),
+                "lng": float(loc[0]),
+                "lat": float(loc[1]),
+                "type": poi.get("type", "")
+            })
+        
+        return formatted_pois
+
     def measure_distance(
         self, 
         origins: List[Tuple[float, float]], 
@@ -215,12 +275,6 @@ class AMapAPI:
         n = len(points)
         matrix = [[0] * n for _ in range(n)]
         
-        # 由于高德 API 只支持多个起点 → 1个终点
-        # 我们需要逐对查询，或者换一种方式
-        
-        # 方法：每次查询一个起点到所有其他点的距离
-        # 通过多次调用实现
-        
         for i in range(n):
             for j in range(n):
                 if i == j:
@@ -228,7 +282,7 @@ class AMapAPI:
                     continue
                 
                 try:
-                    # 查询从点 i 到点 j 的距离
+                    # 先用 distance API（更快）
                     result = self._request(
                         f"{self.BASE_URL}/v3/distance",
                         {
@@ -240,11 +294,22 @@ class AMapAPI:
                     
                     if result["status"] == "1":
                         results = result["data"].get("results", [])
-                        if results:
+                        if results and results[0].get("duration"):
                             matrix[i][j] = int(results[0].get("duration", 0))
+                            continue
+                    
+                    # distance API 失败（如跨城市长距离），降级到 driving_route
+                    route_result = self.driving_route(points[i], points[j])
+                    matrix[i][j] = route_result.get("duration", 0)
+                    
                 except Exception:
-                    # 如果查询失败，使用估算值
-                    matrix[i][j] = 0
+                    # 估算：假设平均速度 10m/s
+                    import math
+                    dist = math.sqrt(
+                        (points[i][0] - points[j][0])**2 + 
+                        (points[i][1] - points[j][1])**2
+                    ) * 111000  # 粗略转换为米（1度≈111km）
+                    matrix[i][j] = int(dist / 10)
         
         return matrix
     
